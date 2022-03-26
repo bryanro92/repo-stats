@@ -3,46 +3,29 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/google/go-github/v43/github"
-)
+	"log"
+	"os"
 
-type PRStats struct {
-	PullsOpened      int
-	PullsMerged      int
-	Approvals        int
-	Comments         int
-	ChangesRequested int
-}
+	"github.com/bryanro/repo-stats/pkg/stats"
+	"github.com/bryanro/repo-stats/pkg/version"
+)
 
 func main() {
 	ctx := context.Background()
-	client := github.NewClient(nil)
-	var u = make(map[string]int)
-	//options := &github.PullRequestListOptions{
-	//	State: "all",
-	//}
-	cm, _, err := client.PullRequests.ListReviews(ctx, "Azure", "ARO-RP", 2009, &github.ListOptions{})
-	//cm, resp, err := client.Repositories.ListComments(ctx, "Azure", "ARO-RP", &github.ListOptions{})
-	//pr, resp, err := client.PullRequests.List(ctx, "Azure", "ARO-RP", options)
+	log.Printf("starting, git commit %s", version.GitCommit)
+
+	// Parse our input and create our options struct
+	options, err := stats.CheckArgs(os.Args[1:])
 	if err != nil {
-		fmt.Errorf("err %v", err)
+		// Print the error first and then show an example
+		// of how to run the command and exit 1
+		fmt.Println(err)
+		stats.Usage()
+		os.Exit(1)
 	}
-	if len(cm) == 0 {
-		fmt.Println("No reviews yet")
-	}
-	c := 0
-	for k, v := range cm {
-		fmt.Println(k)
-		fmt.Println(*v.State)
-		fmt.Println(*v.User.Login)
-		u[*v.User.Login]++
-		c++
-	}
-	fmt.Println("------------------------------------------")
-	fmt.Println(cm)
-	fmt.Println("------------------------------------------")
-	fmt.Println("PR number: 2009")
-	for user, num := range u {
-		fmt.Println("User:", user, " - contributions: ", num)
+
+	// Enter into our program, exit on error
+	if err := stats.Run(ctx, options); err != nil {
+		log.Fatal(err)
 	}
 }
