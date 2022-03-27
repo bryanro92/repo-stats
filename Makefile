@@ -9,7 +9,7 @@ build:
 	go build -ldflags '-X github.com/bryanro92/repo-stats/pkg/version.GitCommit=$(COMMIT)' . 
 
 run:
-	go run -ldflags '-X github.com/bryanro92/repo-stats/pkg/version.GitCommit=$(COMMIT)' . 30
+	go run -ldflags '-X github.com/bryanro92/repo-stats/pkg/version.GitCommit=$(COMMIT)' . azure aro-rp 1
 
 clean:  
 	rm -f ./repo-stats

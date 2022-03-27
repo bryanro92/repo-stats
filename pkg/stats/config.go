@@ -22,6 +22,7 @@ type UserStats struct {
 	Approvals        int
 	Comments         int
 	ChangesRequested int
+	PullList         []int
 	PullsOpened      int
 	PullsMerged      int
 	Username         string

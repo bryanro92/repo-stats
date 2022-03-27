@@ -14,10 +14,9 @@ func (m *StatsManager) pullRequestList(ctx context.Context) ([]int, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	var n []int
 	for _, v := range l {
-		if *v.Number < 2020 {
+		if *v.Number < 2000 {
 			// if v.CreatedAt.After(m.options.AfterDate) {
 			continue
 		}
@@ -45,9 +44,6 @@ func (m *StatsManager) parsePullRequestReviews(ctx context.Context, owner string
 	if err != nil {
 		return err
 	}
-	if len(cm) == 0 {
-		fmt.Println("No reviews yet")
-	}
 	for _, v := range cm {
 		_, ok := m.participantStats[*v.User.ID]
 		if !ok {
@@ -62,14 +58,12 @@ func (m *StatsManager) parsePullRequestReviews(ctx context.Context, owner string
 			m.participantStats[*v.User.ID].Comments += 1
 		case "CHANGES_REQUESTED":
 			m.participantStats[*v.User.ID].ChangesRequested += 1
+		case "PENDING":
+		case "DISMISSED":
 		default:
 			fmt.Println(*v.State)
 		}
+		m.participantStats[*v.User.ID].PullList = append(m.participantStats[*v.User.ID].PullList, number)
 	}
-	fmt.Println("------------------------------------------")
-	fmt.Println("PR number:", number)
-	for user, num := range m.participantStats {
-		fmt.Println("User id:", user, "name:", num.Username, " - contributions: ", num)
-	}
-	return err
+	return nil
 }

@@ -7,12 +7,10 @@ import (
 	"os"
 
 	"github.com/bryanro/repo-stats/pkg/stats"
-	"github.com/bryanro/repo-stats/pkg/version"
 )
 
 func main() {
 	ctx := context.Background()
-	log.Printf("starting, git commit %s", version.GitCommit)
 
 	// Parse our input and create our options struct
 	options, err := stats.CheckArgs(os.Args[1:])
