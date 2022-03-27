@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/go-github/v42/github"
+	"github.com/google/go-github/github"
 )
 
 // PullRequestList looks for ALL pull requests that occur AFTER
@@ -17,7 +17,8 @@ func (m *StatsManager) pullRequestList(ctx context.Context) ([]int, error) {
 
 	var n []int
 	for _, v := range l {
-		if v.CreatedAt.After(m.options.AfterDate) {
+		if *v.Number < 2020 {
+			// if v.CreatedAt.After(m.options.AfterDate) {
 			continue
 		}
 		n = append(n, *v.Number)
@@ -34,41 +35,41 @@ func (m *StatsManager) parsePullRequestList(ctx context.Context, prList []int) e
 			fmt.Println("err parsing pr:", err)
 		}
 	}
-	return fmt.Errorf("error occuured during parsing")
+	return nil
 }
 
 // ParsePullRequestReviews analyzes the activity of pr reviews
 // and updates our manager struct with the data
 func (m *StatsManager) parsePullRequestReviews(ctx context.Context, owner string, repo string, number int) error {
-	// var contributorStats = make(map[int]UserStats)
-
-	var u = make(map[string]int)
-	//options := &github.PullRequestListOptions{
-	//	State: "all",
-	//}
 	cm, _, err := m.ghcli.PullRequests.ListReviews(ctx, m.options.Owner, m.options.Repo, number, &github.ListOptions{})
-	//cm, resp, err := client.Repositories.ListComments(ctx, "Azure", "ARO-RP", &github.ListOptions{})
-	//pr, resp, err := client.PullRequests.List(ctx, "Azure", "ARO-RP", options)
 	if err != nil {
 		return err
 	}
 	if len(cm) == 0 {
 		fmt.Println("No reviews yet")
 	}
-	c := 0
-	for k, v := range cm {
-		fmt.Println(k)
-		fmt.Println(*v.State)
-		fmt.Println(*v.User.Login)
-		u[*v.User.Login]++
-		c++
+	for _, v := range cm {
+		_, ok := m.participantStats[*v.User.ID]
+		if !ok {
+			m.participantStats[*v.User.ID] = &UserStats{
+				Username: *v.User.Login,
+			}
+		}
+		switch *v.State {
+		case "APPROVED":
+			m.participantStats[*v.User.ID].Approvals += 1
+		case "COMMENTED":
+			m.participantStats[*v.User.ID].Comments += 1
+		case "CHANGES_REQUESTED":
+			m.participantStats[*v.User.ID].ChangesRequested += 1
+		default:
+			fmt.Println(*v.State)
+		}
 	}
 	fmt.Println("------------------------------------------")
-	fmt.Println(cm)
-	fmt.Println("------------------------------------------")
-	fmt.Println("PR number: 2009")
-	for user, num := range u {
-		fmt.Println("User:", user, " - contributions: ", num)
+	fmt.Println("PR number:", number)
+	for user, num := range m.participantStats {
+		fmt.Println("User id:", user, "name:", num.Username, " - contributions: ", num)
 	}
 	return err
 }
