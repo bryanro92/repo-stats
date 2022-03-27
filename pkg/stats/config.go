@@ -56,6 +56,11 @@ func CheckArgs(args []string) (*UserStatsOptions, error) {
 	options.Owner = args[0]
 	options.Repo = args[1]
 	options.AfterDate = time.Now().AddDate(0, 0, -d)
+	options.ListOptions = github.PullRequestListOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 50,
+		},
+	}
 	return &options, nil
 }
 

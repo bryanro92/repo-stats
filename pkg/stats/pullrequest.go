@@ -20,6 +20,12 @@ func (m *StatsManager) pullRequestList(ctx context.Context) ([]int, error) {
 			// if v.CreatedAt.After(m.options.AfterDate) {
 			continue
 		}
+		_, ok := m.participantStats[*v.User.ID]
+		if !ok {
+			m.participantStats[*v.User.ID] = &UserStats{
+				Username: *v.User.Login,
+			}
+		}
 		n = append(n, *v.Number)
 	}
 	return n, nil
