@@ -10,6 +10,8 @@
 mkdir secrets
 ```
 
+* Put your GitHub PAT token in the `secrets/env` file
+
 ```
 cat > secrets/env <<'EOF'
 GH_PAT=<your token here>
@@ -17,6 +19,12 @@ EOF
 ```
 
 * `GH_PAT` is your personal access token from GitHub. You can use this anonymously, but stricter rate limits apply.
+
+* Source your `./env` file
+
+```
+. ./env
+```
 
 ## Build
 
