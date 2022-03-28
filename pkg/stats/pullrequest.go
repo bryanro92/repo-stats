@@ -10,13 +10,15 @@ import (
 // PullRequestList looks for ALL pull requests that occur AFTER
 // the managers options AfterDate and returns a list of PR numbers
 func (m *StatsManager) pullRequestList(ctx context.Context) ([]int, error) {
+	// TODO handle pagination
+	// It looks like we get 30 PR's per page
 	l, _, err := m.ghcli.PullRequests.List(ctx, m.options.Owner, m.options.Repo, &m.options.ListOptions)
 	if err != nil {
 		return nil, err
 	}
 	var n []int
 	for _, v := range l {
-		if *v.Number < 2000 {
+		if *v.Number < 1950 {
 			// if v.CreatedAt.After(m.options.AfterDate) {
 			continue
 		}

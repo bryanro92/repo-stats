@@ -30,7 +30,7 @@ func Run(ctx context.Context, options *UserStatsOptions) error {
 
 func (m *StatsManager) printResults() {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 1, ' ', 0)
-	fmt.Fprintln(w, "User\tApproved\tComments\tChangesRequested\tTotalReviews\tUniquePRs\tReviewedList")
+	fmt.Fprintln(w, "User\tApproved\tComments\tChangesRequested\tTotalComments\tUniquePRs\tReviewedList")
 	for _, u := range m.participantStats {
 		fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\t%v\t%v\n", u.Username, u.Approvals, u.Comments, u.ChangesRequested, u.total(), u.totalPRs(), u.uniquePRs())
 	}
