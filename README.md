@@ -19,6 +19,7 @@ EOF
 ```
 
 * `GH_PAT` is your personal access token from GitHub. You can use this anonymously, but stricter rate limits apply.
+    * Recommended permissions for this PAT would be `repo_read`.
 
 * Source your `./env` file
 
