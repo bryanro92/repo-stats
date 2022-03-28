@@ -73,13 +73,17 @@ func Usage() {
 
 func newManager(ctx context.Context, o *UserStatsOptions) (*StatsManager, error) {
 	var m = new(StatsManager)
-
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GH_PAT")},
-	)
-	tc := oauth2.NewClient(ctx, ts)
+	pat := os.Getenv("GH_PAT")
+	if pat == "" {
+		m.ghcli = github.NewClient(nil)
+	} else {
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: pat},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+		m.ghcli = github.NewClient(tc)
+	}
 	m.participantStats = make(map[int64]*UserStats)
-	m.ghcli = github.NewClient(tc)
 	m.options = o
 	m.options.ListOptions = github.PullRequestListOptions{
 		State: "all",

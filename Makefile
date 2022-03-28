@@ -6,10 +6,10 @@ install: build
 	mv ./repo-stats /usr/local/bin/repo-stats
 
 build:
-	go build -ldflags '-X github.com/bryanro92/repo-stats/pkg/version.GitCommit=$(COMMIT)' . 
+	go build . 
 
 run:
-	go run -ldflags '-X github.com/bryanro92/repo-stats/pkg/version.GitCommit=$(COMMIT)' . azure aro-rp 1
+	go run . azure aro-rp 1
 
 clean:  
 	rm -f ./repo-stats
