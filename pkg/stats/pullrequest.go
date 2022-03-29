@@ -12,23 +12,33 @@ import (
 func (m *StatsManager) pullRequestList(ctx context.Context) ([]int, error) {
 	// TODO handle pagination
 	// It looks like we get 30 PR's per page
-	l, _, err := m.ghcli.PullRequests.List(ctx, m.options.Owner, m.options.Repo, &m.options.ListOptions)
-	if err != nil {
-		return nil, err
-	}
 	var n []int
-	for _, v := range l {
-		if *v.Number < 1950 {
-			// if v.CreatedAt.After(m.options.AfterDate) {
-			continue
+
+	// We will get 8 pages of results, 8*30= ~240 PRs
+	// Each PR requires an additional API call to collect the reviews
+	// This gives us about 248 API Calls
+	for m.options.ListOptions.Page < 9 {
+		l, resp, err := m.ghcli.PullRequests.List(ctx, m.options.Owner, m.options.Repo, &m.options.ListOptions)
+		if resp.NextPage != 0 {
+			m.options.ListOptions.ListOptions.Page = resp.NextPage
 		}
-		_, ok := m.participantStats[*v.User.ID]
-		if !ok {
-			m.participantStats[*v.User.ID] = &UserStats{
-				Username: *v.User.Login,
+
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range l {
+			if *v.Number < 1400 {
+				// if v.CreatedAt.After(m.options.AfterDate) {
+				continue
 			}
+			_, ok := m.participantStats[*v.User.ID]
+			if !ok {
+				m.participantStats[*v.User.ID] = &UserStats{
+					Username: *v.User.Login,
+				}
+			}
+			n = append(n, *v.Number)
 		}
-		n = append(n, *v.Number)
 	}
 	return n, nil
 }
