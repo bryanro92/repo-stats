@@ -57,8 +57,10 @@ func CheckArgs(args []string) (*UserStatsOptions, error) {
 	options.Repo = args[1]
 	options.AfterDate = time.Now().AddDate(0, 0, -d)
 	options.ListOptions = github.PullRequestListOptions{
+		State: "all",
 		ListOptions: github.ListOptions{
-			PerPage: 50,
+			Page:    1,
+			PerPage: 30,
 		},
 	}
 	return &options, nil
@@ -73,6 +75,10 @@ func Usage() {
 
 func newManager(ctx context.Context, o *UserStatsOptions) (*StatsManager, error) {
 	var m = new(StatsManager)
+
+	// If our GH_PAT is not defined, use nil httpclient
+	// Otherwise, create a static token resources and oauth client
+	// to pass into our github client
 	pat := os.Getenv("GH_PAT")
 	if pat == "" {
 		m.ghcli = github.NewClient(nil)
@@ -85,9 +91,6 @@ func newManager(ctx context.Context, o *UserStatsOptions) (*StatsManager, error)
 	}
 	m.participantStats = make(map[int64]*UserStats)
 	m.options = o
-	m.options.ListOptions = github.PullRequestListOptions{
-		State: "all",
-	}
 
 	return m, nil
 }
