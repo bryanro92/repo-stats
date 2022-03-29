@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"text/tabwriter"
 )
 
@@ -30,9 +31,9 @@ func Run(ctx context.Context, options *UserStatsOptions) error {
 
 func (m *StatsManager) printResults() {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 1, ' ', 0)
-	fmt.Fprintln(w, "User\tApproved\tComments\tChangesRequested\tTotalComments\tUniquePRs\tReviewedList")
+	fmt.Fprintln(w, "User\tApproved\tComments\tChangesRequested\tTotalComments\tReviewedList")
 	for _, u := range m.participantStats {
-		fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\t%v\t%v\n", u.Username, u.Approvals, u.Comments, u.ChangesRequested, u.total(), u.totalPRs(), u.uniquePRs())
+		fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\t%v\n", u.Username, u.Approvals, u.Comments, u.ChangesRequested, u.total(), u.totalPRs())
 	}
 	w.Flush()
 }
@@ -41,8 +42,11 @@ func (m *UserStats) total() int {
 	return m.Approvals + m.ChangesRequested + m.Comments
 }
 
-func (m *UserStats) totalPRs() int {
-	return len(m.uniquePRs())
+func (m *UserStats) totalPRs() string {
+	if len(m.uniquePRs()) == 0 {
+		return "n/a"
+	}
+	return strconv.Itoa(len(m.uniquePRs()))
 }
 
 func (m *UserStats) uniquePRs() []int {
